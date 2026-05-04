@@ -1,0 +1,14 @@
+[package]
+name = "sudokyst"
+version = "0.1.0"
+entrypoint = "src/lib.typ"
+authors = [
+	"Kelvin Davis <@kelvin-273>",
+]
+license = "GPL-3.0-or-later"
+description = "Visualise sudoku boards."
+repository = "https://github.com/kelvin-273/sudokyst"
+keywords = ["sudoku", "puzzle", "grid"]
+categories = ["visualization", "fun"]
+disciplines = ["education", "logic", "design"]
+exclude = ["/examples/*", "/docs/*", ".git"]
