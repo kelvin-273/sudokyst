@@ -100,6 +100,20 @@
   }
 }
 
+#let first-single-position(board) = {
+  _assert-grid-shape("board", board)
+
+  for row in range(1, 10) {
+    for column in range(1, 10) {
+      if available-values(board, row, column).len() == 1 {
+        return (row, column)
+      }
+    }
+  }
+
+  none
+}
+
 #let generate-hints(board, positions) = {
   _assert-grid-shape("board", board)
 
