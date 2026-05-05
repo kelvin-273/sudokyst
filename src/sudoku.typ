@@ -40,6 +40,13 @@
   )
 }
 
+#let _assert-cell-value(value) = {
+  assert(
+    (value == none) or (type(value) == int and value >= 0 and value <= 9),
+    message: "value must be an integer between 0 and 9, or none.",
+  )
+}
+
 #let _has-value(value) = value != none and value != 0
 
 #let _row-has-value(board, row, value) = board.at(row).contains(value)
@@ -81,7 +88,7 @@
 
   for position in positions {
     assert(
-      position.len() == 2,
+      type(position) == array and position.len() == 2,
       message: "each position must be a (row, column) pair.",
     )
     _assert-cell-position(position.at(0), position.at(1))
@@ -96,6 +103,29 @@
       ()
     }
   }))
+}
+
+#let set-cell(board, row, column, value) = {
+  _assert-grid-shape("board", board)
+  _assert-cell-position(row, column)
+  _assert-cell-value(value)
+
+  let row-index = row - 1
+  let column-index = column - 1
+
+  range(9).map(current-row => {
+    if current-row == row-index {
+      range(9).map(current-column => {
+        if current-column == column-index {
+          value
+        } else {
+          board.at(current-row).at(current-column)
+        }
+      })
+    } else {
+      board.at(current-row)
+    }
+  })
 }
 
 #let _cell-fill(

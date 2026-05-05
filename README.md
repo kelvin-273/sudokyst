@@ -77,12 +77,14 @@ Empty cells should be represented with `0` or `none`.
 
 - `available-values(board, row, column)`: returns the legal values for the given cell as an array like `(1, 2, 4)`. Rows and columns are 1-based. If the cell is already filled, the function returns `()`.
 - `generate-hints(board, positions)`: returns a full `9 x 9` hints array for `sudoku(...)`. `positions` is a list of 1-based `(row, column)` pairs. Selected empty cells receive computed candidates; all other cells receive `()`.
+- `set-cell(board, row, column, value)`: returns a new board with the given 1-based cell updated. `value` may be `0`, `none`, or an integer from `1` to `9`.
 
 Example:
 
 ```typ
-#import "@preview/sudokyst:0.1.0": available-values, generate-hints
+#import "@preview/sudokyst:0.1.0": available-values, generate-hints, set-cell
 
 #let candidates = available-values(board, 1, 3)
 #let hints = generate-hints(board, ((1, 3), (1, 4), (2, 2)))
+#let next-board = set-cell(board, 1, 3, 4)
 ```
