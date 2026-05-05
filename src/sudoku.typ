@@ -76,6 +76,28 @@
   }
 }
 
+#let generate-hints(board, positions) = {
+  _assert-grid-shape("board", board)
+
+  for position in positions {
+    assert(
+      position.len() == 2,
+      message: "each position must be a (row, column) pair.",
+    )
+    _assert-cell-position(position.at(0), position.at(1))
+  }
+
+  range(9).map(row => range(9).map(col => {
+    let position = (row + 1, col + 1)
+
+    if positions.contains(position) {
+      available-values(board, row + 1, col + 1)
+    } else {
+      ()
+    }
+  }))
+}
+
 #let _cell-fill(
   row,
   col,
