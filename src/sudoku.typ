@@ -33,7 +33,48 @@
   )
 }
 
+#let _assert-cell-position(row, column) = {
+  assert(
+    row >= 1 and row <= 9 and column >= 1 and column <= 9,
+    message: "row and column must be between 1 and 9.",
+  )
+}
+
 #let _has-value(value) = value != none and value != 0
+
+#let _row-has-value(board, row, value) = board.at(row).contains(value)
+
+#let _column-has-value(board, column, value) = {
+  range(9).any(row => board.at(row).at(column) == value)
+}
+
+#let _block-has-value(board, row, column, value) = {
+  let block-row-start = calc.floor(row / 3) * 3
+  let block-column-start = calc.floor(column / 3) * 3
+
+  range(block-row-start, block-row-start + 3)
+    .any(block-row => range(block-column-start, block-column-start + 3)
+      .any(block-column => board.at(block-row).at(block-column) == value))
+}
+
+#let available-values(board, row, column) = {
+  _assert-grid-shape("board", board)
+  _assert-cell-position(row, column)
+
+  let row-index = row - 1
+  let column-index = column - 1
+  let current-value = board.at(row-index).at(column-index)
+
+  if _has-value(current-value) {
+    ()
+  } else {
+    range(1, 10).filter(value =>
+      not _row-has-value(board, row-index, value)
+      and not _column-has-value(board, column-index, value)
+      and not _block-has-value(board, row-index, column-index, value)
+    )
+  }
+}
 
 #let _cell-fill(
   row,

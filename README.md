@@ -2,6 +2,8 @@
 
 `sudokyst` is a Typst package for rendering Sudoku boards with optional candidate hints and highlight overlays.
 
+It also includes a helper for computing legal candidate values for a cell from the current board state.
+
 ## Rendering approach
 
 The board is rendered as a native Typst `table` with:
@@ -70,3 +72,15 @@ Empty cells should be represented with `0` or `none`.
 - `value-color` and `hint-color`: text colors
 - `row-highlight-fill`, `column-highlight-fill`, `overlap-highlight-fill`, `cell-highlight-fill`: highlight colors
 - `value-text-size` and `hint-text-size`: optional text size overrides
+
+## Helper functions
+
+- `available-values(board, row, column)`: returns the legal values for the given cell as an array like `(1, 2, 4)`. Rows and columns are 1-based. If the cell is already filled, the function returns `()`.
+
+Example:
+
+```typ
+#import "@preview/sudokyst:0.1.0": available-values
+
+#let candidates = available-values(board, 1, 3)
+```
