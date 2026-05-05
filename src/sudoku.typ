@@ -114,6 +114,22 @@
   none
 }
 
+#let first-single-move(board) = {
+  _assert-grid-shape("board", board)
+
+  for row in range(1, 10) {
+    for column in range(1, 10) {
+      let candidates = available-values(board, row, column)
+
+      if candidates.len() == 1 {
+        return ((row, column), candidates.at(0))
+      }
+    }
+  }
+
+  none
+}
+
 #let generate-hints(board, positions) = {
   _assert-grid-shape("board", board)
 

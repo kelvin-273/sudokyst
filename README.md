@@ -78,6 +78,7 @@ Empty cells should be represented with `0` or `none`.
 - `available-values(board, row, column)`: returns the legal values for the given cell as an array like `(1, 2, 4)`. Rows and columns are 1-based. If the cell is already filled, the function returns `()`.
 - `valid-move(board, row, column, value)`: returns `true` when `value` is a legal `1..9` placement for the given empty 1-based cell on the current board, otherwise `false`.
 - `first-single-position(board)`: returns the 1-based position `(row, column)` of the first cell, scanned top-to-bottom and left-to-right, whose available-values list has length `1`. Returns `none` if there is no such cell.
+- `first-single-move(board)`: returns `((row, column), value)` for the first cell, scanned top-to-bottom and left-to-right, whose available-values list has length `1`. Returns `none` if there is no such cell.
 - `generate-hints(board, positions)`: returns a full `9 x 9` hints array for `sudoku(...)`. `positions` is a list of 1-based `(row, column)` pairs. Selected empty cells receive computed candidates; all other cells receive `()`.
 - `generate-hints-all(board)`: returns a full `9 x 9` hints array for every empty cell on the board. Filled cells receive `()`.
 - `set-cell(board, row, column, value)`: returns a new board with the given 1-based cell updated. `value` may be `0`, `none`, or an integer from `1` to `9`.
@@ -85,11 +86,12 @@ Empty cells should be represented with `0` or `none`.
 Example:
 
 ```typ
-#import "@preview/sudokyst:0.1.0": available-values, valid-move, first-single-position, generate-hints, generate-hints-all, set-cell
+#import "@preview/sudokyst:0.1.0": available-values, valid-move, first-single-position, first-single-move, generate-hints, generate-hints-all, set-cell
 
 #let candidates = available-values(board, 1, 3)
 #let ok = valid-move(board, 1, 3, 4)
 #let single = first-single-position(board)
+#let single-move = first-single-move(board)
 #let hints = generate-hints(board, ((1, 3), (1, 4), (2, 2)))
 #let all-hints = generate-hints-all(board)
 #let next-board = set-cell(board, 1, 3, 4)
