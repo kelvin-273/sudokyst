@@ -49,11 +49,32 @@
 
 #let _has-value(value) = value != none and value != 0
 
+#let _set-cell(board, row, column, value) = {
+  let row-index = row - 1
+  let column-index = column - 1
+
+  range(9).map(current-row => {
+    if current-row == row-index {
+      range(9).map(current-column => {
+        if current-column == column-index {
+          value
+        } else {
+          board.at(current-row).at(current-column)
+        }
+      })
+    } else {
+      board.at(current-row)
+    }
+  })
+}
+
 #let _row-has-value(board, row, value) = board.at(row).contains(value)
 
 #let _column-has-value(board, column, value) = {
   range(9).any(row => board.at(row).at(column) == value)
 }
+
+#let _column-values(board, column) = range(9).map(row => board.at(row).at(column))
 
 #let _block-has-value(board, row, column, value) = {
   let block-row-start = calc.floor(row / 3) * 3
@@ -64,10 +85,7 @@
       .any(block-column => board.at(block-row).at(block-column) == value))
 }
 
-#let available-values(board, row, column) = {
-  _assert-grid-shape("board", board)
-  _assert-cell-position(row, column)
-
+#let _available-values(board, row, column) = {
   let row-index = row - 1
   let column-index = column - 1
   let current-value = board.at(row-index).at(column-index)
@@ -81,6 +99,48 @@
       and not _block-has-value(board, row-index, column-index, value)
     )
   }
+}
+
+#let _block-values(board, block-row-start, block-column-start) = {
+  range(block-row-start, block-row-start + 3)
+    .map(block-row => range(block-column-start, block-column-start + 3)
+      .map(block-column => board.at(block-row).at(block-column)))
+    .flatten()
+}
+
+#let _has-duplicate-values(values) = {
+  range(values.len()).any(i => {
+    let value = values.at(i)
+
+    _has-value(value) and range(i + 1, values.len()).any(j => values.at(j) == value)
+  })
+}
+
+#let _board-complete(board) = {
+  range(9).all(row => range(9).all(column => _has-value(board.at(row).at(column))))
+}
+
+#let _board-infeasible(board) = {
+  let duplicate-rows = range(9).any(row => _has-duplicate-values(board.at(row)))
+  let duplicate-columns = range(9).any(column => _has-duplicate-values(_column-values(board, column)))
+  let duplicate-blocks = (0, 3, 6).any(block-row =>
+    (0, 3, 6).any(block-column =>
+      _has-duplicate-values(_block-values(board, block-row, block-column))
+    )
+  )
+  let empty-cell-without-candidates = range(1, 10).any(row =>
+    range(1, 10).any(column =>
+      not _has-value(board.at(row - 1).at(column - 1)) and _available-values(board, row, column).len() == 0
+    )
+  )
+
+  duplicate-rows or duplicate-columns or duplicate-blocks or empty-cell-without-candidates
+}
+
+#let available-values(board, row, column) = {
+  _assert-grid-shape("board", board)
+  _assert-cell-position(row, column)
+  _available-values(board, row, column)
 }
 
 #let valid-move(board, row, column, value) = {
@@ -130,6 +190,162 @@
   none
 }
 
+#let _first-branch(board) = {
+  for row in range(1, 10) {
+    for column in range(1, 10) {
+      let candidates = available-values(board, row, column)
+
+      if candidates.len() >= 2 {
+        return ((row, column), candidates)
+      }
+    }
+  }
+
+  none
+}
+
+#let _propagate(board, positions, moves) = {
+  let single-move = first-single-move(board)
+
+  if single-move == none {
+    (
+      board: board,
+      positions: positions,
+      moves: moves,
+    )
+  } else {
+    let position = single-move.at(0)
+    let value = single-move.at(1)
+    let next-board = _set-cell(board, position.at(0), position.at(1), value)
+
+    _propagate(
+      next-board,
+      positions + (position,),
+      moves + (single-move,),
+    )
+  }
+}
+
+#let propagate(board) = {
+  _assert-grid-shape("board", board)
+  _propagate(board, (), ())
+}
+
+#let propagate-step(board) = {
+  _assert-grid-shape("board", board)
+
+  let single-move = first-single-move(board)
+
+  if single-move == none {
+    none
+  } else {
+    let position = single-move.at(0)
+    let value = single-move.at(1)
+
+    (
+      board: _set-cell(board, position.at(0), position.at(1), value),
+      position: position,
+      value: value,
+      move: single-move,
+    )
+  }
+}
+
+#let _solve(
+  board,
+  mode: "solve",
+  branch-position: none,
+  candidates: none,
+  candidate-index: 0,
+  boards: (),
+  move-groups: (),
+) = {
+  if mode == "branch" {
+    if candidate-index >= candidates.len() {
+      (
+        solved: false,
+        board: none,
+        boards: boards,
+        move_groups: move-groups,
+      )
+    } else {
+      let value = candidates.at(candidate-index)
+      let move = (branch-position, value)
+      let guessed-board = _set-cell(board, branch-position.at(0), branch-position.at(1), value)
+      let guessed-boards = boards + (guessed-board,)
+      let guessed-move-groups = move-groups + ((move,),)
+      let subproblem = _solve(guessed-board)
+      let branch-boards = guessed-boards + subproblem.boards
+      let branch-move-groups = guessed-move-groups + subproblem.move_groups
+
+      if subproblem.solved {
+        (
+          solved: true,
+          board: subproblem.board,
+          boards: branch-boards,
+          move_groups: branch-move-groups,
+        )
+      } else {
+        _solve(
+          board,
+          mode: "branch",
+          branch-position: branch-position,
+          candidates: candidates,
+          candidate-index: candidate-index + 1,
+          boards: branch-boards,
+          move-groups: branch-move-groups,
+        )
+      }
+    }
+  } else {
+    let propagation = propagate(board)
+    let boards = (propagation.board,)
+    let move-groups = (propagation.moves,)
+
+    if _board-infeasible(propagation.board) {
+      (
+        solved: false,
+        board: none,
+        boards: boards,
+        move_groups: move-groups,
+      )
+    } else if _board-complete(propagation.board) {
+      (
+        solved: true,
+        board: propagation.board,
+        boards: boards,
+        move_groups: move-groups,
+      )
+    } else {
+      let branch = _first-branch(propagation.board)
+
+      if branch == none {
+        (
+          solved: false,
+          board: none,
+          boards: boards,
+          move_groups: move-groups,
+        )
+      } else {
+        _solve(
+          propagation.board,
+          mode: "branch",
+          branch-position: branch.at(0),
+          candidates: branch.at(1),
+          candidate-index: 0,
+          boards: boards,
+          move-groups: move-groups,
+        )
+      }
+    }
+  }
+}
+
+#let solve(board) = {
+  _assert-grid-shape("board", board)
+  _solve(board)
+}
+
 #let generate-hints(board, positions) = {
   _assert-grid-shape("board", board)
 
@@ -164,23 +380,7 @@
   _assert-grid-shape("board", board)
   _assert-cell-position(row, column)
   _assert-cell-value(value)
-
-  let row-index = row - 1
-  let column-index = column - 1
-
-  range(9).map(current-row => {
-    if current-row == row-index {
-      range(9).map(current-column => {
-        if current-column == column-index {
-          value
-        } else {
-          board.at(current-row).at(current-column)
-        }
-      })
-    } else {
-      board.at(current-row)
-    }
-  })
+  _set-cell(board, row, column, value)
 }
 
 #let _cell-fill(
