@@ -1,4 +1,4 @@
-#import "../src/lib.typ": sudoku, generate-hints
+#import "../src/lib.typ": sudoku, generate-hints-all
 
 #let board = (
   (5, 3, 0, 0, 7, 0, 0, 0, 0),
@@ -20,13 +20,13 @@
   })
 }
 
-#let hints = generate-hints(board, positions)
+#let hints = generate-hints-all(board)
 
 #set page(width: auto, height: auto, margin: 18pt)
 
 = Generated hints demo
 
-Selected positions: #positions
+All empty cells are populated with hints.
 
 #sudoku(
   board: board,

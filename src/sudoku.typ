@@ -83,6 +83,23 @@
   }
 }
 
+#let valid-move(board, row, column, value) = {
+  _assert-grid-shape("board", board)
+  _assert-cell-position(row, column)
+  assert(
+    type(value) == int and value >= 1 and value <= 9,
+    message: "value must be an integer between 1 and 9.",
+  )
+
+  let current-value = board.at(row - 1).at(column - 1)
+
+  if _has-value(current-value) {
+    false
+  } else {
+    available-values(board, row, column).contains(value)
+  }
+}
+
 #let generate-hints(board, positions) = {
   _assert-grid-shape("board", board)
 
@@ -102,6 +119,14 @@
     } else {
       ()
     }
+  }))
+}
+
+#let generate-hints-all(board) = {
+  _assert-grid-shape("board", board)
+
+  range(9).map(row => range(9).map(col => {
+    available-values(board, row + 1, col + 1)
   }))
 }
 
