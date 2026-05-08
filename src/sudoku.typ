@@ -383,29 +383,36 @@
   _set-cell(board, row, column, value)
 }
 
+#let _box-index(row, col) = calc.floor(row / 3) * 3 + calc.floor(col / 3) + 1
+
 #let _cell-fill(
   row,
   col,
   highlighted-rows,
   highlighted-columns,
+  highlighted-boxes,
   highlighted-cells,
   row-highlight-fill,
   column-highlight-fill,
+  box-highlight-fill,
   overlap-highlight-fill,
   cell-highlight-fill,
 ) = {
   let row-hit = highlighted-rows.contains(row + 1)
   let column-hit = highlighted-columns.contains(col + 1)
+  let box-hit = highlighted-boxes.contains(_box-index(row, col))
   let cell-hit = highlighted-cells.contains((row + 1, col + 1))
 
   if cell-hit {
     cell-highlight-fill
-  } else if row-hit and column-hit {
+  } else if (if row-hit { 1 } else { 0 }) + (if column-hit { 1 } else { 0 }) + (if box-hit { 1 } else { 0 }) >= 2 {
     overlap-highlight-fill
   } else if row-hit {
     row-highlight-fill
   } else if column-hit {
     column-highlight-fill
+  } else if box-hit {
+    box-highlight-fill
   } else {
     none
   }
@@ -478,6 +485,7 @@
   show-hints: false,
   highlighted-rows: none,
   highlighted-columns: none,
+  highlighted-boxes: none,
   highlighted-cells: none,
   cell-size: 2.4em,
   thin-stroke: 0.5pt + black,
@@ -486,6 +494,7 @@
   hint-color: luma(90),
   row-highlight-fill: rgb("f7f1c7"),
   column-highlight-fill: rgb("ddeefa"),
+  box-highlight-fill: rgb("f4dfef"),
   overlap-highlight-fill: rgb("e7f4dc"),
   cell-highlight-fill: rgb("f8d7d4"),
   value-text-size: auto,
@@ -498,6 +507,7 @@
 
   let highlighted-rows = _normalize-selection(highlighted-rows)
   let highlighted-columns = _normalize-selection(highlighted-columns)
+  let highlighted-boxes = _normalize-selection(highlighted-boxes)
   let highlighted-cells = _normalize-selection(highlighted-cells)
   let value-text-size = if value-text-size == auto {
     cell-size * 0.5
@@ -520,9 +530,11 @@
       col,
       highlighted-rows,
       highlighted-columns,
+      highlighted-boxes,
       highlighted-cells,
       row-highlight-fill,
       column-highlight-fill,
+      box-highlight-fill,
       overlap-highlight-fill,
       cell-highlight-fill,
     ),

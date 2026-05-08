@@ -10,7 +10,7 @@ The board is rendered as a native Typst `table` with:
 
 - fixed-width columns and fixed-height rows so the board stays square
 - thicker strokes on 3x3 block boundaries
-- optional fills for highlighted rows, columns, overlapping row-column intersections, and explicit cells
+- optional fills for highlighted rows, columns, 3x3 boxes, overlapping intersections, and explicit cells
 - optional per-cell hint rendering as a nested `3 x 3` Typst `grid`
 
 This keeps the package fully Typst-native and easy to style without generating SVG manually.
@@ -50,6 +50,7 @@ This keeps the package fully Typst-native and easy to style without generating S
   show-hints: true,
   highlighted-rows: (2, 5),
   highlighted-columns: (4,),
+  highlighted-boxes: (5,),
   highlighted-cells: ((5, 5),),
 )
 ```
@@ -58,7 +59,14 @@ Highlight selections are 1-based:
 
 - `highlighted-rows: (1,)` highlights the first row
 - `highlighted-columns: (9,)` highlights the ninth column
+- `highlighted-boxes: (5,)` highlights the center `3 x 3` box
 - `highlighted-cells: ((5, 5),)` highlights the center cell
+
+Boxes are numbered left-to-right and top-to-bottom:
+
+- `(1, 2, 3)` for the top band
+- `(4, 5, 6)` for the middle band
+- `(7, 8, 9)` for the bottom band
 
 Empty cells should be represented with `0` or `none`.
 
@@ -67,10 +75,11 @@ Empty cells should be represented with `0` or `none`.
 - `board`: a `9 x 9` array of values
 - `hints`: a `9 x 9` array whose cells contain candidate arrays like `(1, 3, 9)`
 - `show-hints`: show the nested `3 x 3` candidate grid in empty cells
+- `highlighted-rows`, `highlighted-columns`, `highlighted-boxes`, `highlighted-cells`: optional 1-based highlight selections
 - `cell-size`: side length of each Sudoku cell
 - `thin-stroke` and `block-stroke`: cell border styling
 - `value-color` and `hint-color`: text colors
-- `row-highlight-fill`, `column-highlight-fill`, `overlap-highlight-fill`, `cell-highlight-fill`: highlight colors
+- `row-highlight-fill`, `column-highlight-fill`, `box-highlight-fill`, `overlap-highlight-fill`, `cell-highlight-fill`: highlight colors
 - `value-text-size` and `hint-text-size`: optional text size overrides
 
 ## Helper functions

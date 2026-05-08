@@ -32,5 +32,6 @@
   show-hints: true,
   highlighted-rows: (2, 5),
   highlighted-columns: (4,),
+  highlighted-boxes: (5,),
   highlighted-cells: ((5, 5),),
 )
