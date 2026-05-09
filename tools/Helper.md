@@ -35,15 +35,15 @@ Now you can start working on your package in the `packages/preview/{your-package
 
 ### Create a new package in the forked repository
 
-Usually, you won't work in the forked repo. Instead, you will work in the official package repository (in case of `griddle`, it is `MicheleDusi/Griddle`). 
+Usually, you won't work in the forked repo. Instead, you will work in the official package repository (in case of `sudokyst`, it is `kelvin-273/sudokyst`). 
 
 ```sh
-cd ../Griddle # Change directory to the official package repository.
+cd ../sudokyst # Change directory to the official package repository.
 ```
 
 Then, you will "move" the changes of this directory to your forked repository.
 
-Assuming you are in the `MicheleDusi/Griddle` repository, you now want to create a *new package* in your forked repository.
+Assuming you are in the `kelvin-273/sudokyst` repository, you now want to create a *new package* in your forked repository.
 
 ```sh
 # Note: be sure that the branch in the forked repo is set to `dev-{your-package-name}`, before running the next command to copy the files.
@@ -58,11 +58,11 @@ cd ../typst-packages # Change directory to your forked repository.
 
 # If you still have to create the branch, do it now:
 git checkout main # Move to the main branch of your forked repository.
-git checkout -b dev-griddle # Create a new branch for development.
-git push -u origin dev-griddle # Publish the current branch to your forked repository on GitHub.
+git checkout -b dev-sudokyst # Create a new branch for development.
+git push -u origin dev-sudokyst # Publish the current branch to your forked repository on GitHub.
 
 # Now, you can add the new package to your forked repository.
-git add packages/preview/griddle # Add the new package to the staging area.
+git add packages/preview/sudokyst # Add the new package to the staging area.
 git commit -m "{your-package-name}:0.Y.Z"
 # Push changes from your local repository to your forked repository on GitHub.
 ```
